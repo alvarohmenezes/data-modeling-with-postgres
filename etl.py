@@ -7,6 +7,12 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """Read, process and insert data song and artist in postgres
+
+    Args:
+        cur (cursor): Curso connect postgres
+        filepath (str): Path song dataset
+    """
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -20,6 +26,12 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """Read, process and insert all dataset time and user
+
+    Args:
+        cur (cursor): Curso connect postgres
+        filepath (str): Path song dataset
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -63,11 +75,19 @@ def process_log_file(cur, filepath):
         datetime = pd.to_datetime(row.ts, unit='ms')
 
         # insert songplay record
-        songplay_data = (index, datetime, str(row.userId), row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
+        songplay_data = (datetime, str(row.userId), row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
+    """get all files matching extension from directory
+
+    Args:
+        cur (cursor): Connect postgres
+        conn (Connection): Connection postgres
+        filepath (str): Path dataset
+        func (func): Function 
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -87,6 +107,7 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    """Execute all functions"""
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
